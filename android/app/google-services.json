@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "367644426561",
+    "project_id": "yuvaan-9a743",
+    "storage_bucket": "yuvaan-9a743.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367644426561:android:76526d76d5ff8cda9521c0",
+        "android_client_info": {
+          "package_name": "com.example.yuvaan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "367644426561-7a56n1rf8imq8kn1e7g7561ibu2akf57.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnGzBiMBYBOYgDKVSU-oso4oJWcNGbTUA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "367644426561-7a56n1rf8imq8kn1e7g7561ibu2akf57.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
