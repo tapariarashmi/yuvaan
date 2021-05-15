@@ -24,17 +24,6 @@ class _OtpScreenState extends State<OtpScreen> {
   String smsOTP='';
   String errorMessage;
   Future<void> verifyPhone({int forceResend=0,String smsCode=''}) async {   
-      // _auth.setSettings(appVerificationDisabledForTesting: true);
-      // await Firebase.initializeApp();
-        // final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {  
-        //     print('code sent');
-        //      print(forceCodeResend);
-        //     this.verificationId = verId;   
-        //     print(verificationId); 
-        //     // smsOTPDialog(context).then((value) {    
-        //     // print('sign in');    
-        //     // });    
-        // };    
         try {   
           print(widget.phoneNumber); 
           
@@ -48,12 +37,10 @@ class _OtpScreenState extends State<OtpScreen> {
                 },    
                 codeSent: (String verificationId, int resendToken){
                   print('code sent');
-             print(resendToken);
-           this.verificationIdh = verificationId;
-            print(verificationId); 
-                  // PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
-                  // print('---------credentials');
-                  // print(credential);
+                  print(resendToken);
+                  this.verificationIdh = verificationId;
+                   print(verificationId); 
+                  
                 } ,  
                      // WHEN CODE SENT THEN WE OPEN DIALOG TO ENTER OTP.    
                 timeout: const Duration(seconds: 20),    
@@ -76,23 +63,10 @@ class _OtpScreenState extends State<OtpScreen> {
             case 'ERROR_INVALID_VERIFICATION_CODE':    
             print(error.code);
             Toast.show('INVALID VERIFICATION CODE', context , duration: 5);
-
-            // FocusScope.of(context).requestFocus(new FocusNode());    
-            // setState(() {    
-            //     errorMessage = 'Invalid Code';    
-            // });    
-            // Navigator.of(context).pop();    
-            // // smsOTPDialog(context).then((value) {    
-            // //     print('sign in');    
-            // // });    
             break;    
             default:  
             print(error.message);  
             Toast.show('INVALID VERIFICATION CODE', context , duration: 5);
-            // setState(() {    
-            //     errorMessage = error.message;    
-            // });    
-    
             break;    
         }    
     } 
@@ -188,7 +162,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           fird = val;
                           if(val.length==1)
                           FocusScope.of(context).nextFocus();
-                          // print(smsOTP);
+                          
                         },
                       ),
                       OTPField(
@@ -196,7 +170,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           secd=val;
                           if(val.length==1)
                           FocusScope.of(context).nextFocus();
-                          // print(smsOTP);
+                          
                         },
                       ),
                       OTPField(
@@ -204,7 +178,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           thid = val;
                           if(val.length==1)
                           FocusScope.of(context).nextFocus();
-                          // print(smsOTP);
+                          
                         },
                       ),
                       OTPField(
@@ -212,7 +186,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           foud=val;
                           if(val.length==1)
                           FocusScope.of(context).nextFocus();
-                          // print(smsOTP);
+                          
                         },
                       ),
                       OTPField(
@@ -220,15 +194,12 @@ class _OtpScreenState extends State<OtpScreen> {
                           fifd=val;
                           if(val.length==1)
                           FocusScope.of(context).nextFocus();
-                          // print(smsOTP);
+                          
                         },
                       ),
                       OTPField(
                         onChanged: (val){
                           sixd=val;
-                          // if(val.length==1)
-                          // FocusScope.of(context).nextFocus();
-                          // print(smsOTP);
                         },
                       ),
                     ],
@@ -246,7 +217,6 @@ class _OtpScreenState extends State<OtpScreen> {
                     timeOutInSeconds: 20,
                     onPressed: () {
                       verifyPhone(forceResend: 1);
-                      // verifyPhone()
                     },
                     disabledColor: Colors.grey,
                     color: Colors.green,
@@ -266,12 +236,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   signInWithOTP(smsOTP);
                   else
                   Toast.show('Enter valid OTP', context , duration: 5);
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => BottomItems(),
-                  //   ),
-                  // );
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
