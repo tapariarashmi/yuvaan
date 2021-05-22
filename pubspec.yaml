@@ -21,7 +21,8 @@ dependencies:
   table_calendar:
   firebase:
   firebase_core:
-  dependencies:
+  firebase_database: 
+  cloud_firestore:
   firebase_auth: 
   timer_button: ^1.0.2
   toast: ^0.1.5

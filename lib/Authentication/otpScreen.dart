@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:timer_button/timer_button.dart';
 import 'package:toast/toast.dart';
+import 'testScreen.dart';
+import 'package:yuvaan/ViewModels/otp_screen_viewmodel.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -19,92 +21,14 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   String fird='',secd='',thid='',foud='',fifd='',sixd='';
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  String verificationIdh;
   String smsOTP='';
-  String errorMessage;
-  Future<void> verifyPhone({int forceResend=0,String smsCode=''}) async {   
-        try {   
-          print(widget.phoneNumber); 
-          
-            await _auth.verifyPhoneNumber(    
-                forceResendingToken: forceResend,
-                phoneNumber: this.widget.phoneNumber, // PHONE NUMBER TO SEND OTP    
-                codeAutoRetrievalTimeout: (String verId) {    
-                //Starts the phone number verification process for the given phone number.    
-                //Either sends an SMS with a 6 digit code to the phone number specified, or sign's the user in and [verificationCompleted] is called.    
-                this.verificationIdh = verId;    
-                },    
-                codeSent: (String verificationId, int resendToken){
-                  print('code sent');
-                  print(resendToken);
-                  this.verificationIdh = verificationId;
-                   print(verificationId); 
-                  
-                } ,  
-                     // WHEN CODE SENT THEN WE OPEN DIALOG TO ENTER OTP.    
-                timeout: const Duration(seconds: 20),    
-                verificationCompleted: (AuthCredential phoneAuthCredential) {  
-                  print('timeout');  
-                print(phoneAuthCredential);    
-                },    
-                verificationFailed: (FirebaseAuthException exceptio) {    
-                  print('exceptio');
-                print('${exceptio.message}');    
-                });    
-        } catch (e) { 
-          print('error')   ;
-            handleError(e);    
-        }    
-    }
-    handleError(FirebaseAuthException error) {    
-        print(error);    
-        switch (error.code) {    
-            case 'ERROR_INVALID_VERIFICATION_CODE':    
-            print(error.code);
-            Toast.show('INVALID VERIFICATION CODE', context , duration: 5);
-            break;    
-            default:  
-            print(error.message);  
-            Toast.show('INVALID VERIFICATION CODE', context , duration: 5);
-            break;    
-        }    
-    } 
-    signInWithOTP(String smsOTP)async{
-      try{
-      AuthCredential credential = PhoneAuthProvider.credential(
-           verificationId: verificationIdh,
-           smsCode: smsOTP,
-        );
-        print('---------credentials');
-                  print(credential);
-                final UserCredential authResult = await _auth
-             .signInWithCredential(credential);
-            
-
-           if (authResult != null) {
-             print('SignIn Successfully! ');
-             Toast.show('SignIn Successfully! ', context , duration: 5);
-             Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BottomItems(),
-                    ),
-                  );
-              
-           } else {
-             Toast.show('SignIn Failed ', context , duration: 5);
-            
-          }
-      } catch (e) { 
-          print('error-----------')   ;
-          handleError(e);    
-        }    
-    }
-    @override
+  OTPLoginVM otpLoginVM = OTPLoginVM.instance;
+  @override
   void initState() {
     super.initState();
-    verifyPhone(forceResend: 0);
+    otpLoginVM = OTPLoginVM.instance;
+    otpLoginVM.verifyPhone(forceResend: 0,phoneNumber: widget.phoneNumber,context: context);
+   
   }
       
 
@@ -216,7 +140,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     label: "Send OTP Again",
                     timeOutInSeconds: 20,
                     onPressed: () {
-                      verifyPhone(forceResend: 1);
+                      otpLoginVM.verifyPhone(forceResend: 1,phoneNumber: widget.phoneNumber,context: context);
                     },
                     disabledColor: Colors.grey,
                     color: Colors.green,
@@ -232,8 +156,9 @@ class _OtpScreenState extends State<OtpScreen> {
                 onPressed: () {
                   smsOTP = fird+secd+thid+foud+fifd+sixd;
                   print(smsOTP);
-                  if(smsOTP.length==6)
-                  signInWithOTP(smsOTP);
+                  if(smsOTP.length==6){
+                  otpLoginVM.signInWithOTP(smsOTP, context);
+                  }
                   else
                   Toast.show('Enter valid OTP', context , duration: 5);
                 },
@@ -263,6 +188,7 @@ class OTPField extends StatelessWidget {
     return Container(
       width: SizeConfig.screenWidth * 30 / 375,
       child: TextField(
+        maxLength: 1,
         autofocus: true,
         keyboardType: TextInputType.number,
         cursorColor: Colors.black,

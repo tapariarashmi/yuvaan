@@ -1,26 +1,51 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yuvaan/Utils/constants.dart';
 import 'package:yuvaan/Utils/sizeConfig.dart';
 import 'package:yuvaan/Widgets/dbTextField.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:toast/toast.dart';
+import 'package:yuvaan/ViewModels/add_member_viewmodel.dart';
+import 'package:yuvaan/Utils/globalVar.dart';
+
 
 void addTeamMember(
-  BuildContext context,
+  {BuildContext context,String addedBy}
 ) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AddTeamMember();
+        return AddTeamMember(addedBy: addedBy,);
       });
 }
 
 class AddTeamMember extends StatefulWidget {
+  final String addedBy;
+  AddTeamMember({this.addedBy});
   @override
   _AddTeamMemberState createState() => _AddTeamMemberState();
 }
 
 class _AddTeamMemberState extends State<AddTeamMember> {
-  String _dropdownValue = 'Engineer';
+  AddMemberVM addMemberVM = AddMemberVM.instance;
+  String _dropdownValue;
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneNoController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _postNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneNoController.dispose();
+    _postNameController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -68,10 +93,7 @@ class _AddTeamMemberState extends State<AddTeamMember> {
                     _dropdownValue = newValue;
                   });
                 },
-                items: <String>[
-                  'Engineer',
-                  'Technicians',
-                ].map<DropdownMenuItem<String>>((String value) {
+                items: addMemberVM.dropDownMenu[GlobalVar.accessLevel].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -80,18 +102,28 @@ class _AddTeamMemberState extends State<AddTeamMember> {
               ),
             ),
             DBTextField(
+              controller:_nameController,
               hint: 'Name',
               keyboardType: TextInputType.name,
               height: 45,
             ),
             DBTextField(
+              controller: _emailController,
               hint: 'Email',
               keyboardType: TextInputType.emailAddress,
               height: 45,
             ),
             DBTextField(
+              controller: _phoneNoController,
               hint: 'Phone Number',
               keyboardType: TextInputType.phone,
+              height: 45,
+            ),
+            if(_dropdownValue!='Manager')
+            DBTextField(
+              controller: _postNameController,
+              hint: 'Post Name',
+              keyboardType: TextInputType.name,
               height: 45,
             ),
             SizedBox(
@@ -100,8 +132,47 @@ class _AddTeamMemberState extends State<AddTeamMember> {
                 height: SizeConfig.screenHeight * 45 / 812,
                 elevation: 0,
                 color: kGreen,
-                onPressed: () {
-                  //Todo:
+                onPressed: () async{
+                  if(_dropdownValue!=null && _nameController.text!=null && _emailController.text!=null && _phoneNoController.text!=null)
+                  addMemberVM.addMember(
+                    heading: _dropdownValue.toLowerCase()+"s",
+                    name: _nameController.text,
+                    phoneNumber: _phoneNoController.text,
+                    post: _dropdownValue,
+                    addedBy: widget.addedBy,
+                    context: context,
+                    postName: _postNameController.text,
+                    );
+                  
+                  else
+                  Toast.show("Invalid Addition", context,duration: 3);
+                  // FirebaseDatabase.instance.reference().child('managers').push().update(value)
+                  // try{
+                  //  await FirebaseDatabase.instance
+                  //               .reference()
+                  //               .child(_dropdownValue.toLowerCase()+"s")
+                  //               .push()
+                  //               .update({
+                  //             "name": _nameController.text,
+                  //             "phoneNo": "+91${_phoneNoController.text}",
+                  //             "post": _dropdownValue,
+                  //             "plantsVisibile": "P0,P1",
+                  //             // "email": _emailController.text,
+                  //           });
+                  // await FirebaseFirestore.instance
+                  //               .collection('CurrentLogins')
+                  //               .doc("+91${_phoneNoController.text}")
+                  //               .set({
+                  //             "value" : "${_dropdownValue}_By${widget.addedBy}"
+                  //           });
+                  // print('Added----');
+                  //  Toast.show('Added Successfully! ', context , duration: 5);
+                  //  Navigator.pop(context);
+                  // }
+                  // catch(e){
+                  //    Toast.show("Error Occured", context , duration: 5);
+                  //    Navigator.pop(context);
+                  // }
                 },
                 minWidth: SizeConfig.screenWidth * 310 / 375,
                 shape: RoundedRectangleBorder(

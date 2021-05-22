@@ -15,7 +15,7 @@ class PeopleTwo extends StatelessWidget {
         elevation: 1,
         backgroundColor: kGreen,
         onPressed: () {
-          addTeamMember(context);
+          addTeamMember(context: context);
         },
         child: Icon(Icons.person_add_alt_1_rounded),
       ),

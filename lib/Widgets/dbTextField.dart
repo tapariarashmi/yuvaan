@@ -5,8 +5,9 @@ class DBTextField extends StatelessWidget {
   final String hint;
   final TextInputType keyboardType;
   final int height;
+  final TextEditingController controller;
   DBTextField(
-      {this.hint, this.keyboardType = TextInputType.text, this.height = 50});
+      {this.hint, this.keyboardType = TextInputType.text, this.height = 50,this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,7 @@ class DBTextField extends StatelessWidget {
       width: SizeConfig.screenWidth * 280 / 375,
       height: SizeConfig.screenHeight * height / 812,
       child: TextField(
+        controller: controller,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,
