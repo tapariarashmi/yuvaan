@@ -3,6 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toast/toast.dart';
 import 'package:yuvaan/Utils/globalVar.dart';
+import 'package:provider/provider.dart';
+import 'package:yuvaan/core/service/data_provider.dart';
 
 class AddMemberVM{
   static AddMemberVM instance = AddMemberVM._();
@@ -11,7 +13,7 @@ class AddMemberVM{
   Map<String,List<String>> dropDownMenu = {'1':['Manager','Admin'],'2':['Team Member','Admin'],'3':['Team Member']};
   
 
-  Future<void> addMember({String heading, String name, String phoneNumber,String post,String addedBy,String postName='',BuildContext context}) async{
+  Future<void> addMember({String name, String phoneNumber,String post,String addedBy,String postName='',String email='',BuildContext context}) async{
 
     try{
             if(post=='Manager'){
@@ -20,7 +22,7 @@ class AddMemberVM{
                               "name": name,
                               "phoneNo": "+91$phoneNumber",
                               "post": "$post@Vysion",
-                              "plantsVisibile": "P0,P1"
+                              "email": email,
                             });
                await FirebaseFirestore.instance.collection('CurrentLogins').doc("+91$phoneNumber")
                       .set({
@@ -28,6 +30,7 @@ class AddMemberVM{
                             });
                 print('Added----');
                    Toast.show('Added Successfully! ', context , duration: 3);
+                   await Provider.of<DBDetails>(context,listen: false).getManagerList();
                    Navigator.pop(context);
             }
             else if(post=='Admin'){
@@ -36,7 +39,8 @@ class AddMemberVM{
                               "name": name,
                               "phoneNo":"+91$phoneNumber",
                               "post":"Admin@$postName",
-                              "plantsVisibile": "P1",
+                              "plantsVisible": "P1",
+                              "email": email,
                               });
                await FirebaseFirestore.instance.collection('CurrentLogins').doc("+91$phoneNumber")
                       .set({
@@ -44,6 +48,7 @@ class AddMemberVM{
                           });
               print('Added----');
                    Toast.show('Added Successfully! ', context , duration: 3);
+                   
                    Navigator.pop(context);
             }
             else if(post.startsWith('Team')){
@@ -56,7 +61,8 @@ class AddMemberVM{
                                 "name": name,
                                 "phoneNo": "+91$phoneNumber",
                                 "post": "$postName@Vysion",
-                                "plantsVisibile": "C0,C1"
+                                "plantsVisible": "P0,P1",
+                                "email": email,
                               });
                await FirebaseFirestore.instance.collection('CurrentLogins').doc("+91$phoneNumber")
                       .set({

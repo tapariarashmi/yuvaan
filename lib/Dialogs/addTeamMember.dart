@@ -1,14 +1,12 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yuvaan/Utils/constants.dart';
 import 'package:yuvaan/Utils/sizeConfig.dart';
 import 'package:yuvaan/Widgets/dbTextField.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toast/toast.dart';
 import 'package:yuvaan/ViewModels/add_member_viewmodel.dart';
 import 'package:yuvaan/Utils/globalVar.dart';
+
 
 
 void addTeamMember(
@@ -35,6 +33,7 @@ class _AddTeamMemberState extends State<AddTeamMember> {
   TextEditingController _phoneNoController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _postNameController = TextEditingController();
+  bool loading = false;
 
   @override
   void dispose() {
@@ -133,52 +132,31 @@ class _AddTeamMemberState extends State<AddTeamMember> {
                 elevation: 0,
                 color: kGreen,
                 onPressed: () async{
-                  if(_dropdownValue!=null && _nameController.text!=null && _emailController.text!=null && _phoneNoController.text!=null)
-                  addMemberVM.addMember(
-                    heading: _dropdownValue.toLowerCase()+"s",
+                  setState(() {
+                    loading=true;
+                  });
+                  if(_dropdownValue!=null && _nameController.text!=null && _emailController.text!=null && _phoneNoController.text!=null){
+                  await addMemberVM.addMember(
                     name: _nameController.text,
                     phoneNumber: _phoneNoController.text,
                     post: _dropdownValue,
                     addedBy: widget.addedBy,
                     context: context,
                     postName: _postNameController.text,
+                    email: _emailController.text,
                     );
-                  
+                  }
                   else
                   Toast.show("Invalid Addition", context,duration: 3);
-                  // FirebaseDatabase.instance.reference().child('managers').push().update(value)
-                  // try{
-                  //  await FirebaseDatabase.instance
-                  //               .reference()
-                  //               .child(_dropdownValue.toLowerCase()+"s")
-                  //               .push()
-                  //               .update({
-                  //             "name": _nameController.text,
-                  //             "phoneNo": "+91${_phoneNoController.text}",
-                  //             "post": _dropdownValue,
-                  //             "plantsVisibile": "P0,P1",
-                  //             // "email": _emailController.text,
-                  //           });
-                  // await FirebaseFirestore.instance
-                  //               .collection('CurrentLogins')
-                  //               .doc("+91${_phoneNoController.text}")
-                  //               .set({
-                  //             "value" : "${_dropdownValue}_By${widget.addedBy}"
-                  //           });
-                  // print('Added----');
-                  //  Toast.show('Added Successfully! ', context , duration: 5);
-                  //  Navigator.pop(context);
-                  // }
-                  // catch(e){
-                  //    Toast.show("Error Occured", context , duration: 5);
-                  //    Navigator.pop(context);
-                  // }
+                  setState(() {
+                    loading=false;
+                  });
                 },
                 minWidth: SizeConfig.screenWidth * 310 / 375,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: Text(
+                child: loading?CircularProgressIndicator():Text(
                   'Add',
                   style: TextStyle(color: Colors.white),
                 ),

@@ -2,13 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yuvaan/Utils/constants.dart';
 import 'package:yuvaan/Utils/sizeConfig.dart';
-import 'package:yuvaan/bottom.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:timer_button/timer_button.dart';
 import 'package:toast/toast.dart';
-import 'testScreen.dart';
 import 'package:yuvaan/ViewModels/otp_screen_viewmodel.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -20,6 +16,7 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  bool loading = false;
   String fird='',secd='',thid='',foud='',fifd='',sixd='';
   String smsOTP='';
   OTPLoginVM otpLoginVM = OTPLoginVM.instance;
@@ -153,19 +150,25 @@ class _OtpScreenState extends State<OtpScreen> {
                 elevation: 0,
                 color: kGreen,
                 minWidth: SizeConfig.screenWidth * 310 / 375,
-                onPressed: () {
+                onPressed: () async{
                   smsOTP = fird+secd+thid+foud+fifd+sixd;
                   print(smsOTP);
+                  setState(() {
+                    loading=true;
+                  });
                   if(smsOTP.length==6){
-                  otpLoginVM.signInWithOTP(smsOTP, context);
+                  await otpLoginVM.signInWithOTP(smsOTP, context);
                   }
                   else
                   Toast.show('Enter valid OTP', context , duration: 5);
+                  setState(() {
+                    loading=false;
+                  });
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(
+                child: loading? CircularProgressIndicator():Text(
                   'Verify & Proceed',
                   style: TextStyle(color: Colors.white),
                 ),
@@ -193,6 +196,7 @@ class OTPField extends StatelessWidget {
         keyboardType: TextInputType.number,
         cursorColor: Colors.black,
         onChanged: onChanged,
+        decoration: InputDecoration(counterText: ''),
       ),
     );
   }

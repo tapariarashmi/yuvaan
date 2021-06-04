@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +9,26 @@ import 'package:yuvaan/Utils/constants.dart';
 import 'package:yuvaan/Utils/sizeConfig.dart';
 import 'package:yuvaan/Widgets/robotCodeBox.dart';
 import 'package:yuvaan/Widgets/roundedSearchField.dart';
+import 'package:yuvaan/Dialogs/addBlock.dart';
+import 'package:yuvaan/Utils/image_file.dart';
+import 'package:provider/provider.dart';
+import 'package:yuvaan/core/service/data_provider.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  final int index;
+  Home({this.index=0});
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<DBDetails>(context,listen: false).getBlockList(widget.index);
+  }
+  
   final List<Widget> imageSliders = [
     Container(
       margin: EdgeInsets.all(5.0),
@@ -149,7 +169,23 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+    return Consumer<DBDetails>(builder: (context,dbDetails,child){
+    if(dbDetails.fetching)
+    return Scaffold(body: Center(child: CircularProgressIndicator()));
+    else if(dbDetails.blockDetailsList.length==0){
+    print("No Blocks found");
+    return CreateBlockScreen(widget: widget);
+    }
+    else{
+    print("Block Details Screen");
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed:(){
+          addNewBlock(context, widget.index);
+        },
+        child: Icon(Icons.add,color:Colors.white),
+        backgroundColor: kGreen,
+        ),
       backgroundColor: Colors.white,
       body: Column(
         mainAxisSize: MainAxisSize.max,
@@ -197,8 +233,11 @@ class Home extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: 10,
+              shrinkWrap: true,
+              itemCount: dbDetails.blockDetailsList.length,
               itemBuilder: (context, index) {
+                int startCount = int.parse(dbDetails.blockDetailsList[index]['startCode']);
+                int endCount = int.parse(dbDetails.blockDetailsList[index]['endCode']);
                 return Column(
                   children: [
                     Padding(
@@ -210,7 +249,7 @@ class Home extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Block $index',
+                            'Block ${index+1}',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w700),
                           ),
@@ -219,8 +258,9 @@ class Home extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => BlockViewAll(),
+                                  builder: (context) => BlockViewAll(blockIndex: index,startCount: startCount,endCount: endCount,),
                                 ),
+                                
                               );
                             },
                             child: Container(
@@ -248,14 +288,25 @@ class Home extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        RobotCodeBox(),
-                        RobotCodeBox(),
-                        RobotCodeBox(),
-                        RobotCodeBox(),
-                        RobotCodeBox(),
-                        RobotCodeBox(),
+                        Expanded(
+                            child: SizedBox(
+                              height: 50,
+                              child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              shrinkWrap: true,
+                                itemCount: min(endCount-startCount+1,6),
+                                itemBuilder: (context,blockIndex){
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: RobotCodeBox(startCount+blockIndex),
+                                    );
+                                },
+                          ),
+                            ),
+                        ),
                       ],
                     ),
+                    
                     SizedBox(
                       height: SizeConfig.screenHeight * 10 / 812,
                     ),
@@ -273,6 +324,61 @@ class Home extends StatelessWidget {
           ),
         ],
       ),
+    );
+    }
+    }
+    );
+    }
+  }
+
+
+
+class CreateBlockScreen extends StatelessWidget {
+  const CreateBlockScreen({
+    Key key,
+    @required this.widget,
+  }) : super(key: key);
+
+  final Home widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body:Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Container(
+            child: Center(child: Image.asset(ImageFile.noDataImage)),
+              ),
+            Text(
+              'No Data Availabe!',
+              style: TextStyle(color: kBlack,fontWeight:FontWeight.bold),
+            ),
+            Container(
+                  margin: EdgeInsets.symmetric(
+                  horizontal: SizeConfig.screenWidth * 32 / 375),
+                  child: Text(
+                    'Create Blocks to view \nyour robot status',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: createBlockTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+            
+            FlatButton(
+              color: kGreen,
+              child: Text('Create Block',style: TextStyle(color:Colors.white),),
+              onPressed: (){
+                addNewBlock(context,widget.index);
+              },
+              ),
+          ],
+        )
+      )
     );
   }
 }

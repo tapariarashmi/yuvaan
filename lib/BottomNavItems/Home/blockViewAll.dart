@@ -3,7 +3,11 @@ import 'package:yuvaan/Utils/sizeConfig.dart';
 import 'package:yuvaan/Widgets/robotCodeBox.dart';
 
 class BlockViewAll extends StatelessWidget {
+  final int blockIndex,startCount,endCount;
+  BlockViewAll({this.blockIndex,this.endCount,this.startCount});
+
   @override
+
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
@@ -16,7 +20,7 @@ class BlockViewAll extends StatelessWidget {
           ),
           elevation: 0,
           title: Text(
-            'Block 15',
+            'Block ${blockIndex+1}',
             style: TextStyle(
                 color: Color(0xff2D2C32),
                 fontSize: 16,
@@ -34,8 +38,8 @@ class BlockViewAll extends StatelessWidget {
               crossAxisSpacing: SizeConfig.screenWidth * 10 / 375,
               mainAxisSpacing: SizeConfig.screenHeight * 10 / 812,
             ),
-            itemCount: 14,
-            itemBuilder: (_, index) => RobotCodeBox(),
+            itemCount: endCount-startCount+1,
+            itemBuilder: (context, index) => RobotCodeBox(startCount+index),
           ),
         ));
   }

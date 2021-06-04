@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:toast/toast.dart';
-import 'package:yuvaan/Authentication/testScreen.dart';
 import 'package:yuvaan/Utils/globalVar.dart';
+import 'package:yuvaan/Utils/screenNavigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class OTPLoginVM{
@@ -11,6 +12,7 @@ class OTPLoginVM{
 
   FirebaseAuth _auth = FirebaseAuth.instance;
   String verificationIdh;
+  List posts = ["superAdmins","managers","admins","managerTeam","adminTeam"];
   Future<void> verifyPhone({int forceResend=0,String smsCode='',String phoneNumber='',BuildContext context}) async {   
         try {   
           print(phoneNumber); 
@@ -82,60 +84,22 @@ class OTPLoginVM{
              print('delay ended');
             
              await _auth.currentUser.getIdTokenResult(true)
-             .then((value){
+             .then((value)async{
                print(value.claims);
                GlobalVar.accessLevel = value.claims['accessLevel'];
                GlobalVar.userUID = value.claims['user_id'];
+               
+               GlobalVar.userPost = posts[int.parse(GlobalVar.accessLevel)-1];
                print(GlobalVar.accessLevel);
                print(GlobalVar.userUID);
-               switch (value.claims['accessLevel']) {
-                 case "1":
-                   {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => TestScreen(appBarTitle: "SuperAdmin",),
-                                  ),
-                      );
-                   }
-                   break;
-                   case "2":
-                   {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => TestScreen(appBarTitle: "Manager",),
-                                  ),
-                      );
-                   }
-                   break;
-                   case "3":
-                   {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => TestScreen(appBarTitle: "Admin",),
-                                  ),
-                      );
-                   }
-                   break;
-                   case "4":
-                   {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => TestScreen(appBarTitle: "ManagerTeamMember",),
-                                  ),
-                      );
-                   }
-                   break;
-                   case "5":
-                   {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => TestScreen(appBarTitle: "AdminTeamMember",),
-                                  ),
-                      );
-                   }
-                   break;
-                 default:{
-                   Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => TestScreen(appBarTitle: "Other",),
-                                  ),
-                      );
-                 }
-               }
+               print(GlobalVar.userPost);
+               SharedPreferences prefs = await SharedPreferences.getInstance();
+               prefs.setBool('remember', true);
+               prefs.setString('accessLevel', GlobalVar.accessLevel);
+               prefs.setString('userUID', GlobalVar.userUID);
+               prefs.setString('userPost', GlobalVar.userPost);
+               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>navigateScreen(GlobalVar.accessLevel, context)), (route) => false);
+               
              }
              );
              

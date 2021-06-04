@@ -4,15 +4,18 @@ import 'package:yuvaan/Utils/constants.dart';
 import 'package:yuvaan/Utils/sizeConfig.dart';
 
 class RobotCodeBox extends StatelessWidget {
+  final int code;
+  RobotCodeBox(this.code);
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => RobotStatus(),
           ),
+          (route)=>false
         );
       },
       child: Container(
@@ -27,7 +30,7 @@ class RobotCodeBox extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            '1001',
+            code.toString(),
             style: TextStyle(
                 fontSize: 14, fontWeight: FontWeight.w700, color: kGreen),
           ),

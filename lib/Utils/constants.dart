@@ -7,3 +7,5 @@ final Color kBlue = Color(0xff2F81B1);
 final Color kOrange = Color(0xffF29339);
 final Color kRed = Color(0xffFF0000);
 final Color kLightBlue = Color(0xffAEE1FF);
+final Color kBlack = Color(0xff000000);
+final Color createBlockTextColor = Color(0xff908E9C);

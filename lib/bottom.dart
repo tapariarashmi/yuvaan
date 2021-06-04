@@ -12,11 +12,23 @@ import 'package:yuvaan/DrawerFragments/maintenanceReport.dart';
 import 'package:yuvaan/DrawerFragments/monthlyReport.dart';
 import 'package:yuvaan/DrawerFragments/robotDetails.dart';
 import 'package:yuvaan/Utils/constants.dart';
+import 'package:yuvaan/Utils/globalVar.dart';
 import 'package:yuvaan/Utils/sizeConfig.dart';
 import 'package:yuvaan/Widgets/drawerItems.dart';
 import 'Profile/profile.dart';
+import 'AddNewPlant/addNewPlant.dart';
+import 'dart:math' as math;
+import 'Dialogs/plantsUnderYou.dart';
+import 'DrawerFragments/allPlants.dart';
+import 'Utils/image_file.dart';
+import 'DrawerFragments/managerList.dart';
+import 'core/service/data_provider.dart';
+import 'package:provider/provider.dart';
 
 class BottomItems extends StatefulWidget {
+  final int index;
+  final int fetch;
+  BottomItems({this.index=0,this.fetch=0});
   @override
   _BottomItemsState createState() => _BottomItemsState();
 }
@@ -26,7 +38,7 @@ class _BottomItemsState extends State<BottomItems> {
   List<Widget> _bottomNavScreens;
 
   String setAppBarTitle(int index) {
-    if (index == 0) return 'Plant Name';
+    if (index == 0) return Provider.of<DBDetails>(context).plantsUnderYouList[widget.index];
     if (index == 1) return 'Clean';
     if (index == 2) return 'People';
     if (index == 3) return 'About Plant';
@@ -37,8 +49,40 @@ class _BottomItemsState extends State<BottomItems> {
     if (index == 8) return 'Help';
     if (index == 9)
       return 'Profile';
+    if (index== 10) return 'All Plants';
+    if (index== 11) return 'Managers List';
     else
       return ' ';
+  }
+
+  Widget getAppBar(int index){
+    if(index==0)
+    return GestureDetector(
+            onTap:(){
+              plantsUnderYou(context);
+            },
+              child: Row(
+              children: [
+                Text(
+                  setAppBarTitle(index),
+                  style: TextStyle(
+                      color: Color(0xff2D2C32),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700),
+                ),
+                SizedBox(width:5),
+                Transform.rotate( angle: 270*math.pi/180,child: Icon(Icons.arrow_back_ios_rounded))
+              ],
+            ),
+          );
+    else
+      return Text(
+                  setAppBarTitle(index),
+                  style: TextStyle(
+                      color: Color(0xff2D2C32),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700),
+                );
   }
 
   @override
@@ -46,7 +90,7 @@ class _BottomItemsState extends State<BottomItems> {
     
     super.initState();
     _bottomNavScreens = [
-      Home(),
+      Home(index:widget.index),
       Clean(),
       People(),
       AboutPlant(),
@@ -56,23 +100,34 @@ class _BottomItemsState extends State<BottomItems> {
       MaintenanceReport(),
       Help(),
       Profile(),
+      AllPlants(),
+      AllManagerList(),
+      NoDataScreen(),
     ];
+    
+    if(widget.fetch==1)
+    {
+      Provider.of<DBDetails>(context,listen: false).fetchstrt();
+      Provider.of<DBDetails>(context,listen: false).getPlantDetails();
+    }
+    
+    
   }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+    return Consumer<DBDetails>(builder: (context,dbDetails,child){
+    if(dbDetails.fetching)
+    return Scaffold(body: Center(child: CircularProgressIndicator()));
+    else{
+      if(dbDetails.plantsUnderYouList.length==0 && _currentIndex==0)
+      _currentIndex = 12;
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           elevation: 0,
-          title: Text(
-            setAppBarTitle(_currentIndex),
-            style: TextStyle(
-                color: Color(0xff2D2C32),
-                fontSize: 16,
-                fontWeight: FontWeight.w700),
-          ),
+          title: getAppBar(_currentIndex),
           actions: [
             IconButton(
               icon: Icon(
@@ -146,6 +201,7 @@ class _BottomItemsState extends State<BottomItems> {
                 title: 'About Plant',
                 iconData: Icons.info_outline_rounded,
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     _currentIndex = 3;
                   });
@@ -155,6 +211,7 @@ class _BottomItemsState extends State<BottomItems> {
                 title: 'Robot Details',
                 iconData: Icons.android,
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     _currentIndex = 4;
                   });
@@ -164,6 +221,7 @@ class _BottomItemsState extends State<BottomItems> {
                 title: 'Monthly Report',
                 iconData: Icons.calendar_today_rounded,
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     _currentIndex = 5;
                   });
@@ -173,6 +231,7 @@ class _BottomItemsState extends State<BottomItems> {
                 title: 'Action List',
                 iconData: Icons.list_alt_rounded,
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     _currentIndex = 6;
                   });
@@ -182,15 +241,42 @@ class _BottomItemsState extends State<BottomItems> {
                 title: 'Maintenance Report',
                 iconData: Icons.handyman_rounded,
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     _currentIndex = 7;
                   });
                 },
               ),
+              
+              if(GlobalVar.accessLevel=='1')
+              DrawerItem(
+                title: 'All Plants',
+                iconData: Icons.list_alt_rounded,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 10;
+                  });
+                },
+              ),
+
+              if(GlobalVar.accessLevel=='1')
+              DrawerItem(
+                title: 'Managers List',
+                iconData: Icons.people,
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 11;
+                  });
+                },
+              ),
+              
               DrawerItem(
                 title: 'Help',
                 iconData: Icons.help_outline_rounded,
                 onTap: () {
+                  Navigator.pop(context);
                   setState(() {
                     _currentIndex = 8;
                   });
@@ -258,5 +344,57 @@ class _BottomItemsState extends State<BottomItems> {
           ],
         ),
         body: _bottomNavScreens[_currentIndex]);
+        }
+    }
+    );
+  }
+}
+
+class NoDataScreen extends StatelessWidget {
+  const NoDataScreen({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body:Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Container(
+            child: Center(child: Image.asset(ImageFile.noDataImage)),
+              ),
+            Text(
+              'No Data Availabe',
+              style: TextStyle(color: kBlack,fontWeight:FontWeight.bold),
+            ),
+            if(GlobalVar.accessLevel=='1')
+            Container(
+                  margin: EdgeInsets.symmetric(
+                  horizontal: SizeConfig.screenWidth * 32 / 375),
+                  child: Text(
+                    'Create Plants to view \nyour robot status',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: createBlockTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+            if(GlobalVar.accessLevel=='1')
+            FlatButton(
+              color: kGreen,
+              child: Text('Add Plant',style: TextStyle(color:Colors.white),),
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddNewPlantScreen()));
+              },
+              ),
+            
+          ],
+        )
+      )
+    );
   }
 }
